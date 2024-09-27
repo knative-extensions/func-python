@@ -34,6 +34,10 @@ class DefaultFunction:
     def __init__(self, handler):
         self.handle = handler
 
+    async def __call__(self, scope, receive, send):
+        # delegate to the handler implementation provided during construction.
+        await self.handle (scope, receive, send) 
+
 
 class ASGIApplication():
     def __init__(self, f):
@@ -105,8 +109,8 @@ class ASGIApplication():
             elif scope['path'] == '/health/readiness':
                 await self.handle_readiness(scope, receive, send)
             else:
-                if hasattr(self.f, "handle"):
-                    await self.f.handle(scope, receive, send)
+                if callable(self.f):
+                    await self.f(scope, receive, send)
                 else:
                     raise Exception("function does not implement handle")
         except Exception as e:
