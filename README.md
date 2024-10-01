@@ -3,7 +3,6 @@
 This middleware is used by Knative Functions to expose a Function written in
 Python as a network service.
 
-
 ## Contents
 ```
 .
