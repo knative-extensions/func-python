@@ -9,14 +9,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
-- Workflows to publish to PyPI and Test PyPI
-- Chanagelog
-
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
-## [0.0.0] - YYYY-MM-DD
+## [0.1.0] - 2024-10-28
+
+### Added
+- Initial Implementation of the Python HTTP Functions Middleware
+
 
