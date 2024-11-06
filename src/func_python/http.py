@@ -36,7 +36,7 @@ class DefaultFunction:
 
     async def __call__(self, scope, receive, send):
         # delegate to the handler implementation provided during construction.
-        await self.handle (scope, receive, send) 
+        await self.handle(scope, receive, send)
 
 
 class ASGIApplication():
@@ -117,24 +117,48 @@ class ASGIApplication():
             await send_exception(send, 500, f"Error: {e}")
 
     async def handle_liveness(self, scope, receive, send):
+        alive = True
+        message = "OK"
         if hasattr(self.f, "alive"):
-            self.f.alive()
-        else:
+            result = self.f.alive()
+            # The message return is optional
+            if isinstance(result, tuple):
+                alive, message = result
+            else:
+                alive = result
+
+        if alive:
             await send({'type': 'http.response.start', 'status': 200,
                         'headers': [[b'content-type', b'text/plain']]})
-            await send({'type': 'http.response.body',
-                        'body': b'OK',
-                        })
+        else:
+            await send({'type': 'http.response.start', 'status': 500,
+                        'headers': [[b'content-type', b'text/plain']]})
+
+        await send({'type': 'http.response.body',
+                    'body': f'{message}'.encode('utf-8'),
+                    })
 
     async def handle_readiness(self, scope, receive, send):
+        ready = True
+        message = "OK"
         if hasattr(self.f, "ready"):
-            self.f.ready()
-        else:
+            result = self.f.ready()
+            # The message return is optional
+            if isinstance(result, tuple):
+                ready, message = result
+            else:
+                ready = result
+
+        if ready:
             await send({'type': 'http.response.start', 'status': 200,
                         'headers': [[b'content-type', b'text/plain']]})
-            await send({'type': 'http.response.body',
-                        'body': b'OK',
-                        })
+        else:
+            await send({'type': 'http.response.start', 'status': 500,
+                        'headers': [[b'content-type', b'text/plain']]})
+
+        await send({'type': 'http.response.body',
+                    'body': f'{message}'.encode('utf-8'),
+                    })
 
 
 async def send_exception(send, code, message):

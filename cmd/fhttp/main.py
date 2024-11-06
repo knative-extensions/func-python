@@ -40,15 +40,8 @@ async def handle(scope, receive, send):
 # This is the default expected by this test.
 # The class can be named anything.  See "new" below.
 class MyFunction:
-    """ Function is an example of a functioon instance.  The structure
-    implements the function which will be deployed as a network service.
-    The class name can be changed.  The only required method is "handle".
-    """
     async def __call__(self, scope, receive, send):
-        """ handle is the only method which must be implemented by the
-        function instance for it to be served as an ASGI handler.
-        """
-        logging.info("OK: instanced!!")
+        logging.info("OK")
 
         await send({
             'type': 'http.response.start',
@@ -59,6 +52,14 @@ class MyFunction:
             'type': 'http.response.body',
             'body': 'OK: instanced'.encode(),
         })
+
+    def alive(self):
+        logging.info("liveness checked")
+        return True, "I'm alive!"
+
+    def ready(self):
+        logging.info("liveness checked")
+        return True, "I'm ready!"
 
 
 # Funciton instance constructor
