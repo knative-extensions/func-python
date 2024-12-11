@@ -21,7 +21,11 @@ def serve(f):
     if f.__name__ == 'new':
         return ASGIApplication(f()).serve()
     elif f.__name__ == 'handle':
-        return ASGIApplication(DefaultFunction(f)).serve()
+        try:
+            return ASGIApplication(DefaultFunction(f)).serve()
+        except Exception as e:
+            logging.error(f"Server failed to start: {e}")
+            raise
     else:
         raise ValueError("function must be either be a constructor 'new' or a "
                          "handler 'handle'.")
