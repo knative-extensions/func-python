@@ -8,6 +8,10 @@ from func_python.http import serve
 
 logging.basicConfig(level=logging.INFO)
 
+# Set a dynamic test URL using an environment variable
+os.environ["LISTEN_ADDRESS"] = os.getenv("LISTEN_ADDRESS", "127.0.0.1:8081")
+# Retrieve the LISTEN_ADDRESS for use in the tests
+LISTEN_ADDRESS = os.getenv("LISTEN_ADDRESS")
 
 def test_static():
     """ 
@@ -40,7 +44,7 @@ def test_static():
                 logging.info("server did not start")
                 return
             try:
-                httpx.get("http://127.0.0.1:8080")
+                httpx.get(f"http://{LISTEN_ADDRESS}")
                 break
             except httpx.ConnectError:
                 logging.info("... retrying server.")
@@ -48,7 +52,7 @@ def test_static():
 
         # Test that the handler was served
         try:
-            response = httpx.get("http://127.0.0.1:8080")
+            response = httpx.get(f"http://{LISTEN_ADDRESS}")
             assert response.status_code == 200
             assert response.text == "test_static OK"
         finally:
@@ -102,7 +106,7 @@ def test_instanced():
                 logging.info("server did not start")
                 return
             try:
-                httpx.get("http://127.0.0.1:8080")
+                httpx.get(f"http://{LISTEN_ADDRESS}")
                 break
             except httpx.ConnectError:
                 logging.info("... retrying server.")
@@ -110,7 +114,7 @@ def test_instanced():
 
         # Test that the handler was served
         try:
-            response = httpx.get("http://127.0.0.1:8080")
+            response = httpx.get(f"http://{LISTEN_ADDRESS}")
             assert response.status_code == 200
             assert response.text == "test_instanced OK"
         finally:
