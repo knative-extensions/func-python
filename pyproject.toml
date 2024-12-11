@@ -13,12 +13,9 @@ hypercorn = "^0.17.3"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["tests"]
-asyncio_default_fixture_loop_scope = "function"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
-pytest-asyncio = "^0.24.0"
 httpx = "^0.28.0"
 
 [build-system]

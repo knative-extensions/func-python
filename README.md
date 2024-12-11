@@ -19,11 +19,11 @@ Python as a network service.
 
 ## Tests
 
-Run suite
-`poetry run python -m pytest tests/* -v -s`
+Run suite:
+`poetry run pytest`
 
-To enable debug logging use `--log-cli-level`:
-`poetry run python -m pytest tests/* -v -s --log-cli-level=DEBUG`
+To enable more granular log levels:
+`poetry run pytest --log-cli-level=INFO`
 
 ## Example Main
 
