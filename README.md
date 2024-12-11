@@ -7,15 +7,28 @@ Python as a network service.
 ```
 .
 ├── cmd
-│   └── fhttp     - Example a function using the http middleware
+│   └── fhttp          - Example a Function using the http middleware
 ├── src/func_python
-│   ├── http.py   - HTTP Middleware
-└── README.md     - This Readme
+│   ├── http.py        - HTTP Middleware
+├── tests
+│   ├── http_test.py   - HTTP Middleware tests
+└── README.md          - This Readme
 ```
 
 ## Development
 
-Minimal example of running the test Function:
+## Tests
+
+Run suite:
+`poetry run pytest`
+
+To enable more granular log levels:
+`poetry run pytest --log-cli-level=INFO`
+
+## Example Main
+
+Minimal example of running the test command, which shows how this
+library is used when integrate with Functions, and can be useful during dev.
 
 - install `poetry` via `pipx`
 - install dependencies with `poetry install`
@@ -27,6 +40,7 @@ Minimal example of running the test Function:
 - run the example via `poetry run python cmd/fhttp/main.py`
 - deactivate the virtual environment with `exit`
 
+## Suggested Flow
 
 A nice method of development using git worktrees:
 
