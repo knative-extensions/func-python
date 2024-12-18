@@ -2,6 +2,10 @@
 name = "func-python"
 version = "0.2.0"
 description = "Knative Functions Python Middleware"
+packages = [
+    { include = "func_http", from = "src" },
+]
+
 authors = ["Luke Kingland <luke@lukekingland.com>"]
 readme = "README.md"
 license = "Apache-2.0"

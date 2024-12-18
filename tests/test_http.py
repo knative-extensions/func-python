@@ -4,7 +4,7 @@ import os
 import signal
 import threading
 import time
-from func_python.http import serve
+from func_http.http import serve
 
 logging.basicConfig(level=logging.INFO)
 

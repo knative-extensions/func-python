@@ -1,6 +1,6 @@
 import argparse
 import logging
-from func_python.http import serve
+from func_http.http import serve
 
 # Set the default logging level to INFO
 logging.basicConfig(level=logging.INFO)
