@@ -2,7 +2,7 @@
 name = "func-python"
 version = "0.2.0"
 description = "Knative Functions Python Middleware"
-authors = ["Luke Kingland <luke@lukekingland.com>"]
+authors = ["The Knative Authors <knative-dev@googlegroups.com>"]
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/knative-extensions/func-python"
