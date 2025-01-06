@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import signal
 import hypercorn.config
 import hypercorn.asyncio
 
@@ -9,7 +10,6 @@ DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LISTEN_ADDRESS = "127.0.0.1:8080"
 
 logging.basicConfig(level=DEFAULT_LOG_LEVEL)
-
 
 def serve(f):
     """serve a function f by wrapping it in an ASGI web application
@@ -46,6 +46,7 @@ class DefaultFunction:
 class ASGIApplication():
     def __init__(self, f):
         self.f = f
+        self.stop_event = asyncio.Event()
         # Inform the user via logs that defaults will be used for health
         # endpoints if no matchin methods were provided.
         if hasattr(self.f, "alive") is not True:
@@ -67,7 +68,18 @@ class ASGIApplication():
         cfg.bind = [os.getenv('LISTEN_ADDRESS', DEFAULT_LISTEN_ADDRESS)]
 
         logging.debug(f"function starting on {cfg.bind}")
-        return asyncio.run(hypercorn.asyncio.serve(self, cfg))
+        return asyncio.run(self._serve(cfg))
+
+    async def _serve(self, cfg):
+        loop = asyncio.get_event_loop()
+        loop.add_signal_handler(signal.SIGINT, self._handle_signal)
+        loop.add_signal_handler(signal.SIGTERM, self._handle_signal)
+
+        await hypercorn.asyncio.serve(self, cfg)
+
+    def _handle_signal(self):
+        logging.info("Signal received: initiating shutdown")
+        self.stop_event.set()
 
     async def on_start(self):
         """on_start handles the ASGI server start event, delegating control
@@ -82,8 +94,8 @@ class ASGIApplication():
             self.f.stop()
         else:
             logging.info("function does not implement 'stop'. Skipping.")
+        self.stop_event.set()
 
-    # Register ASGIFunctoin as a callable ASGI Function
     async def __call__(self, scope, receive, send):
         if scope['type'] == 'lifespan':
             while True:
@@ -101,7 +113,7 @@ class ASGIApplication():
         # Assert request is HTTP
         if scope["type"] != "http":
             await send_exception(send, 400,
-                                 "Functions currenly only support ASGI/HTTP "
+                                 "Functions currently only support ASGI/HTTP "
                                  f"connections. Got {scope['type']}"
                                  )
             return
