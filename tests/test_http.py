@@ -14,7 +14,7 @@ os.environ["LISTEN_ADDRESS"] = os.getenv("LISTEN_ADDRESS", "127.0.0.1:8081")
 LISTEN_ADDRESS = os.getenv("LISTEN_ADDRESS")
 
 def test_static():
-    """ 
+    """
     ensures that a user function developed using the default "static"
     style (method signature) is served by the middleware.
     """
@@ -71,9 +71,8 @@ def test_static():
 
     test_thread.join(timeout=5)
 
-
 def test_instanced():
-    """ 
+    """
     ensures that a user function developed using the default "instanced"
     style is served by the middleware
     """
@@ -132,3 +131,36 @@ def test_instanced():
         logging.info("signal received")
 
     test_thread.join(timeout=5)
+
+def test_signal_handling():
+    """
+    Tests that the server gracefully shuts down when receiving a SIGINT signal.
+    """
+    # Example minimal ASGI app
+    async def handle(scope, receive, send):
+        await send({
+            'type': 'http.response.start',
+            'status': 200,
+            'headers': [[b'content-type', b'text/plain']],
+        })
+        await send({
+            'type': 'http.response.body',
+            'body': b'Signal Handling OK',
+        })
+
+    # Function to send a SIGINT after a delay
+    def send_signal():
+        time.sleep(2)  # Allow server to start
+        os.kill(os.getpid(), signal.SIGINT)
+
+    # Start signal sender in a separate thread
+    signal_thread = threading.Thread(target=send_signal)
+    signal_thread.start()
+
+    # Serve the function
+    try:
+        serve(handle)
+    except KeyboardInterrupt:
+        logging.info("SIGINT received and handled gracefully.")
+
+    signal_thread.join(timeout=5)
