@@ -58,8 +58,12 @@ class MyFunction:
         return True, "I'm alive!"
 
     def ready(self):
-        logging.info("liveness checked")
+        logging.info("readiness checked")
         return True, "I'm ready!"
+
+    def stop(self):
+        logging.info("Cleanup on stop")
+        # Add cleanup logic here if necessary
 
 
 # Funciton instance constructor
