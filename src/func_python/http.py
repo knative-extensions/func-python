@@ -33,7 +33,7 @@ def serve(f):
 
 class DefaultFunction:
     """DefaultFunction is used when the provided functon is not a constructor
-    for a funciton instance, but rather a simple handler function"""
+    for a Function instance, but rather a simple handler function"""
 
     def __init__(self, handler):
         self.handle = handler

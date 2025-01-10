@@ -20,7 +20,7 @@ args = parser.parse_args()
 # Must be named exactly "handle"
 async def handle(scope, receive, send):
     """ handle is an example of a static handler which can be sent to the
-    middleware as a funciton.  It will be wrapped in a default Funciton
+    middleware as a function.  It will be wrapped in a default Function
     instance before being served as an ASGI application.
     """
     logging.info("OK: static!!")
@@ -66,7 +66,7 @@ class MyFunction:
         # Add cleanup logic here if necessary
 
 
-# Funciton instance constructor
+# Function instance constructor
 # expected to be named exactly "new"
 # Must return a callable which conforms to the ASGI spec.
 def new():
