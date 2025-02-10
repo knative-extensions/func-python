@@ -10,8 +10,10 @@ logging.basicConfig(level=logging.INFO)
 
 # Set a dynamic test URL using an environment variable
 os.environ["LISTEN_ADDRESS"] = os.getenv("LISTEN_ADDRESS", "127.0.0.1:8081")
+
 # Retrieve the LISTEN_ADDRESS for use in the tests
 LISTEN_ADDRESS = os.getenv("LISTEN_ADDRESS")
+
 
 def test_static():
     """
@@ -19,7 +21,7 @@ def test_static():
     style (method signature) is served by the middleware.
     """
 
-    # Functoin
+    # Function
     # An example minimal "static" user function which will be
     # exposed on the network as an ASGI service by the middleware.
     async def handle(scope, receive, send):
@@ -81,7 +83,7 @@ def test_instanced():
     # An example standard "instanced" function (user's Function) which is
     # exposed on the network as an ASGI service by the middleware.
     class MyFunction:
-        async def __call__(self, scope, receive, send):
+        async def handle(self, scope, receive, send):
             await send({
                 'type': 'http.response.start',
                 'status': 200,

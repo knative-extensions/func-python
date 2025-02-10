@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 ### Changed
+
+- Simplified instanced functions by expecting a named 'handle' method.
+
 ### Deprecated
 ### Removed
 ### Fixed
@@ -19,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [0.2.0] - 2024-11-06
 
 ### Added
+
 - optional message returns from lifeycle methods "alive" and "ready"
 - expanded development and release documentation
 
@@ -26,6 +30,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [0.1.0] - 2024-10-28
 
 ### Added
+
 - Initial Implementation of the Python HTTP Functions Middleware
 
 

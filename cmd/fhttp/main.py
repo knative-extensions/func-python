@@ -38,9 +38,11 @@ async def handle(scope, receive, send):
 
 # Example instanced handler
 # This is the default expected by this test.
-# The class can be named anything.  See "new" below.
+# The class can be named anything, but there must be a constructor named "new"
+# which returns an object with an async method "handle" conforming to the ASGI
+# callable's method signature.
 class MyFunction:
-    async def __call__(self, scope, receive, send):
+    async def handle(self, scope, receive, send):
         logging.info("OK")
 
         await send({
@@ -68,7 +70,8 @@ class MyFunction:
 
 # Function instance constructor
 # expected to be named exactly "new"
-# Must return a callable which conforms to the ASGI spec.
+# Must return a object which exposes a method "handle" which conforms to the
+# ASGI callable spec.
 def new():
     """ new is the factory function (or constructor) which will create
     a new function instance when invoked.  This must be named "new", and the

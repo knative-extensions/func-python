@@ -11,6 +11,7 @@ DEFAULT_LISTEN_ADDRESS = "127.0.0.1:8080"
 
 logging.basicConfig(level=DEFAULT_LOG_LEVEL)
 
+
 def serve(f):
     """serve a function f by wrapping it in an ASGI web application
     and starting.  The function can be either a constructor for a functon
@@ -28,7 +29,7 @@ def serve(f):
             raise
     else:
         raise ValueError("function must be either be a constructor 'new' or a "
-                         "handler 'handle'.")
+                         "handler function 'handle'.")
 
 
 class DefaultFunction:
@@ -38,7 +39,7 @@ class DefaultFunction:
     def __init__(self, handler):
         self.handle = handler
 
-    async def __call__(self, scope, receive, send):
+    async def handle(self, scope, receive, send):
         # delegate to the handler implementation provided during construction.
         await self.handle(scope, receive, send)
 
@@ -47,6 +48,9 @@ class ASGIApplication():
     def __init__(self, f):
         self.f = f
         self.stop_event = asyncio.Event()
+        if hasattr(self.f, "handle") is not True:
+            raise AttributeError( "Function must implement a 'handle' method.")
+
         # Inform the user via logs that defaults will be used for health
         # endpoints if no matchin methods were provided.
         if hasattr(self.f, "alive") is not True:
@@ -125,10 +129,7 @@ class ASGIApplication():
             elif scope['path'] == '/health/readiness':
                 await self.handle_readiness(scope, receive, send)
             else:
-                if callable(self.f):
-                    await self.f(scope, receive, send)
-                else:
-                    raise Exception("function does not implement handle")
+                await self.f.handle(scope, receive, send)
         except Exception as e:
             await send_exception(send, 500, f"Error: {e}")
 
