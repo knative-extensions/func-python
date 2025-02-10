@@ -46,6 +46,7 @@ A nice method of development using git worktrees:
 
 p. From a personal fork, create a new worktree for the bug, feature or chore
    named appropriately (eg. "feature-a")
+   `git worktree add feature-a`
 
 2. Implement the code changes and commit.
 
@@ -58,7 +59,82 @@ p. From a personal fork, create a new worktree for the bug, feature or chore
 6. Upon approval, squash and merge to main.
 
 7. (optional) cleanup by removing the worktree and associated local and remote
-   branch.
+   branches.
 
 8. (optional) pull into local fork's main and push to remote fork main.
 
+## Releasing
+
+NOTE: This process is currently undergoing minor tweaks, and thus contains
+several manual steps.  Once the process is codified, it can be more highly 
+automated.
+
+1. Create a new branch "release-x.y" from an up-to-date main
+   When incrementing, follow Semantic Versioning standard. eg:
+   - Bug fixes:  ++ patch version
+   - Features:   ++ minor version
+   - Breaking Changes:  ++ major version
+
+2. Update pyproject.toml with the new version.
+
+3. Update CHANGELOG.md by moving the "Unreleased" items into a new
+   section for the given version (leaving an empty Unreleased section as a
+   template for future updates)
+
+4. Commit, push and create a PR to upstream's main branch
+   Please set the commit message to "Release vx.y.z" with the new version number
+
+5. Obtain approval for release from another team member.
+
+6. Squash and merge (ensure the commit message remains Release vx.y.x).
+
+7. Verify the new version was correctly published to test PyPI and all
+   precautions have been taken to ensure it is functioning as intended.
+   (See testing below)
+
+8. Pull from upstream into your local main branch and tag the commit vx.y.z
+   (the squash and merge will have created a new commit hash)
+
+9. push the tag to upstream, triggering the release to production PyPI.
+
+10. Update the GitHub release's notes to be the changelog section's contents .
+
+## Testing
+
+To run the package level tests
+
+To test if the package published to Test PyPI works, ensure the
+project has it added as an explicit source in pyproject.toml:
+```
+[[tool.poetry.source]]
+name = "test-pypi"
+url = "https://test.pypi.org/simple/"
+priority = "explicit"
+```
+Then update the dependency to explicitly pull the new version which is only
+available on TestPyPI.  For example to test a hypothetical unreleased version
+0.1.2:
+```
+[tool.poetry.dependencies]
+func_python = {version = "0.1.2", source = "test-pypi"}
+```
+Run `poetry install` to install the unreleased version from Test PyPI
+
+Note: do not check in this change.
+
+
+
+
+### Potential improvements
+
+Update to using the suffix "rcX" so as not to confuse folks pulling tags list
+from the git repo.  Without this suffix, a simple listing of the latest
+tags from the repo would show a potentially unreleased version as the latest.
+
+With the use of these release-candidate tags, the use of TestPyPI may be
+unnecessary.
+
+Perhaps push the RC tag to the PR's commit and test prior to merging the
+PR to main, such that a potentially broken version is not kept in the main
+branch's history.  For example, if v0.1.2rc1 failed, its commit will not be
+part of the main branch.
