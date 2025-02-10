@@ -9,9 +9,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+
+- Instanced handlers now support OnStop events
+
 ### Changed
 
 - Simplified instanced functions by expecting a named 'handle' method.
+- Tests support specifying test service listen address
 
 ### Deprecated
 ### Removed
