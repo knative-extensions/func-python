@@ -49,7 +49,7 @@ class ASGIApplication():
         self.f = f
         self.stop_event = asyncio.Event()
         if hasattr(self.f, "handle") is not True:
-            raise AttributeError( "Function must implement a 'handle' method.")
+            raise AttributeError("Function must implement a 'handle' method.")
 
         # Inform the user via logs that defaults will be used for health
         # endpoints if no matchin methods were provided.
