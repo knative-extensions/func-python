@@ -7,12 +7,15 @@ Python as a network service.
 ```
 .
 ├── cmd
-│   └── fhttp          - Example a Function using the http middleware
+│   └── fhttp                - Example Function using the http middleware
+│   └── fce                  - Example Function using the CloudEvent middleware
 ├── src/func_python
-│   ├── http.py        - HTTP Middleware
+│   ├── http.py              - HTTP Middleware
+│   ├── cloudevents.py       - CloudEvent Middleware
 ├── tests
-│   ├── http_test.py   - HTTP Middleware tests
-└── README.md          - This Readme
+│   ├── http_test.py         - HTTP Middleware tests
+│   ├── cloudevent_test.py   - CloudEvent tests
+└── README.md                - This Readme
 ```
 
 ## Development
@@ -25,7 +28,7 @@ Run suite:
 To enable more granular log levels:
 `poetry run pytest --log-cli-level=INFO`
 
-## Example Main
+## Example Commands
 
 Minimal example of running the test command, which shows how this
 library is used when integrate with Functions, and can be useful during dev.
