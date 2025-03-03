@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "func-python"
-version = "0.4.1"
+version = "0.4.2"
 description = "Knative Functions Python Middleware"
 authors = ["The Knative Authors <knative-dev@googlegroups.com>"]
 readme = "README.md"
