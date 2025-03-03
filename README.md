@@ -119,7 +119,7 @@ automated.
 
 7. Verify the new version was correctly published to test PyPI and all
    precautions have been taken to ensure it is functioning as intended.
-   (See testing below)
+   (See testing above)
 
 8. Pull from upstream into your local main branch and tag the commit vx.y.z
    (the squash and merge will have created a new commit hash)
