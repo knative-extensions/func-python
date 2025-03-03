@@ -15,17 +15,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 ### Security
 
-## [0.4.1] - 2025-03-02
-
-### Fixed
-
-- Deployment and Release Updates
-
-## [0.4.0] - 2025-03-02
-
-### Added
+## [0.4] - 2025-03-02
 
 - CloudEvent Middleware
+- Deployment and Release Automation Updates
 
 
 ## [0.3.0] - 2025-02-10
