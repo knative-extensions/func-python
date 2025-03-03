@@ -66,6 +66,32 @@ p. From a personal fork, create a new worktree for the bug, feature or chore
 
 8. (optional) pull into local fork's main and push to remote fork main.
 
+## Testing
+
+To run the package level tests
+
+To test if the package published to Test PyPI works, ensure the
+project has it added as an explicit source in pyproject.toml:
+```
+[[tool.poetry.source]]
+name = "test-pypi"
+url = "https://test.pypi.org/simple/"
+priority = "explicit"
+```
+Then update the dependency to explicitly pull the new version which is only
+available on TestPyPI.  For example to test a hypothetical unreleased version
+0.1.2:
+```
+[tool.poetry.dependencies]
+func_python = {version = "0.1.2", source = "test-pypi"}
+```
+Run `poetry install` to install the unreleased version from Test PyPI
+
+Note: do not check in this change.
+
+
+
+
 ## Releasing
 
 NOTE: This process is currently undergoing minor tweaks, and thus contains
@@ -101,31 +127,6 @@ automated.
 9. push the tag to upstream, triggering the release to production PyPI.
 
 10. Update the GitHub release's notes to be the changelog section's contents .
-
-## Testing
-
-To run the package level tests
-
-To test if the package published to Test PyPI works, ensure the
-project has it added as an explicit source in pyproject.toml:
-```
-[[tool.poetry.source]]
-name = "test-pypi"
-url = "https://test.pypi.org/simple/"
-priority = "explicit"
-```
-Then update the dependency to explicitly pull the new version which is only
-available on TestPyPI.  For example to test a hypothetical unreleased version
-0.1.2:
-```
-[tool.poetry.dependencies]
-func_python = {version = "0.1.2", source = "test-pypi"}
-```
-Run `poetry install` to install the unreleased version from Test PyPI
-
-Note: do not check in this change.
-
-
 
 
 ### Potential improvements
