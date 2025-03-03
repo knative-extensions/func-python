@@ -73,6 +73,7 @@ def test_static():
 
     test_thread.join(timeout=5)
 
+
 def test_instanced():
     """
     ensures that a user function developed using the default "instanced"
@@ -133,6 +134,7 @@ def test_instanced():
         logging.info("signal received")
 
     test_thread.join(timeout=5)
+
 
 def test_signal_handling():
     """
