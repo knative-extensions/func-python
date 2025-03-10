@@ -22,6 +22,9 @@ Python as a network service.
 
 ## Tests
 
+Install dependencies:
+`poetry install`
+
 Run suite:
 `poetry run pytest`
 
@@ -66,12 +69,14 @@ p. From a personal fork, create a new worktree for the bug, feature or chore
 
 8. (optional) pull into local fork's main and push to remote fork main.
 
-## Testing
+## Testing Published Package
 
-To run the package level tests
+Prior to releasing, it's possible to test the package which was published
+to TestPyPI when the release PR is merged to main but before the tag
+is pushed (which triggers production release).
 
-To test if the package published to Test PyPI works, ensure the
-project has it added as an explicit source in pyproject.toml:
+To test, in a test project ensure the it adds the test package as an
+explicit source in pyproject.toml:
 ```
 [[tool.poetry.source]]
 name = "test-pypi"
@@ -88,8 +93,6 @@ func_python = {version = "0.1.2", source = "test-pypi"}
 Run `poetry install` to install the unreleased version from Test PyPI
 
 Note: do not check in this change.
-
-
 
 
 ## Releasing
