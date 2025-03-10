@@ -10,18 +10,22 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 ### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [0.5.0] - 2025-03-10
+
+### Changed
 
 - Choose python version compatible with S2I
 
-### Deprecated
-### Removed
 ### Fixed
 
 - Fixed CloudEvent raw http send (missing await)
 
-### Security
-
-## [0.4] - 2025-03-02
+## [0.4.2] - 2025-03-02
 
 - CloudEvent Middleware
 - Deployment and Release Automation Updates
