@@ -16,6 +16,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Deprecated
 ### Removed
 ### Fixed
+
+- Fixed CloudEvent raw http send (missing await)
+
 ### Security
 
 ## [0.4] - 2025-03-02

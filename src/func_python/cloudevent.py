@@ -47,6 +47,9 @@ class DefaultFunction:
 
 
 class ASGIApplication():
+    """ ASGIApplication is a wrapper around a Function instance which 
+    exposes it as an ASGI Application. 
+    """
     def __init__(self, f):
         self.f = f
         self.stop_event = asyncio.Event()
@@ -257,7 +260,7 @@ class CloudEventSender:
     async def http(self, message):
         """Send a raw http response, bypassing the automatic cloudevent
         encoding.  Use this for more granular control of the response."""
-        self._send(message)
+        await self._send(message)
 
     async def _send_encoded_cloudevent(self, headers, body, status=200):
         """Send the given cloudevent headers and body."""

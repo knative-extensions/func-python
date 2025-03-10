@@ -28,6 +28,9 @@ Install dependencies:
 Run suite:
 `poetry run pytest`
 
+Or more verbosely:
+`poetry run pytest -vs --log-cli-level=INFO`
+
 To enable more granular log levels:
 `poetry run pytest --log-cli-level=INFO`
 
