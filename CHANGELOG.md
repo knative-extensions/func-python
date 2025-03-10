@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 ### Changed
+
+- Choose python version compatible with S2I
+
 ### Deprecated
 ### Removed
 ### Fixed
@@ -19,7 +22,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - CloudEvent Middleware
 - Deployment and Release Automation Updates
-
 
 ## [0.3.0] - 2025-02-10
 
@@ -38,7 +40,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - optional message returns from lifeycle methods "alive" and "ready"
 - expanded development and release documentation
-
 
 ## [0.1.0] - 2024-10-28
 

@@ -8,7 +8,7 @@ license = "Apache-2.0"
 repository = "https://github.com/knative-extensions/func-python"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.8"
 hypercorn = "^0.17.3"
 cloudevents = "^1.11.0"
 
