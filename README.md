@@ -8,7 +8,7 @@ Python as a network service.
 .
 ├── cmd
 │   └── fhttp                - Example Function using the http middleware
-│   └── fce                  - Example Function using the CloudEvent middleware
+│   └── fcloudevent          - Example Function using the CloudEvent middleware
 ├── src/func_python
 │   ├── http.py              - HTTP Middleware
 │   ├── cloudevents.py       - CloudEvent Middleware
