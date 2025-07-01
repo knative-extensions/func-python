@@ -7,7 +7,7 @@ import hypercorn.config
 import hypercorn.asyncio
 
 DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LISTEN_ADDRESS = "127.0.0.1:8080"
+DEFAULT_LISTEN_ADDRESS = "[::]:8080"
 
 logging.basicConfig(level=DEFAULT_LOG_LEVEL)
 
