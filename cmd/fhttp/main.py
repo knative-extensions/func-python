@@ -23,7 +23,7 @@ async def handle(scope, receive, send):
     middleware as a function.  It will be wrapped in a default Function
     instance before being served as an ASGI application.
     """
-    logging.info("OK: static!!")
+    logging.info("Static HTTP handler invoked")
 
     await send({
         'type': 'http.response.start',
