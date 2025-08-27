@@ -7,6 +7,7 @@ import hypercorn.asyncio
 
 from cloudevents.http import from_http, CloudEvent
 from cloudevents.conversion import to_structured, to_binary
+from cloudevents.exceptions import MissingRequiredFields, InvalidRequiredFields
 
 DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LISTEN_ADDRESS = "[::]:8080"
@@ -143,14 +144,39 @@ class ASGIApplication():
                 # interstitial encode/decode, and thus avoid the approx. 200
                 # lines of shared server boilerplate.
                 #
-                # Decode the event and make it available in the scope
-                scope["event"] = await decode_event(scope, receive)
-                # Wrap the sender in a CloudEventSender
-                send = CloudEventSender(send)
-                # Delegate processing to user's Function
-                await self.f.handle(scope, receive, send)
+                try:
+                    # Decode the event and make it available in the scope
+                    scope["event"] = await decode_event(scope, receive)
+                    # Wrap the sender in a CloudEventSender
+                    send = CloudEventSender(send)
+                    # Delegate processing to user's Function
+                    await self.f.handle(scope, receive, send)
+                except (MissingRequiredFields, InvalidRequiredFields) as e:
+                    # Log the non-CloudEvent request for debugging
+                    logging.warning(f"Received non-CloudEvent request: {scope['method']} {scope['path']}")
+                    headers_dict = {k.decode('utf-8'): v.decode('utf-8') for k, v in scope.get('headers', [])}
+                    logging.debug(f"Request headers: {headers_dict}")
+                    
+                    # Return 400 Bad Request for non-CloudEvent requests
+                    await send({
+                        'type': 'http.response.start',
+                        'status': 400,
+                        'headers': [[b'content-type', b'text/plain']]
+                    })
+                    await send({
+                        'type': 'http.response.body',
+                        'body': b'Bad Request: This endpoint expects CloudEvent requests. '
+                    })
+                    return
         except Exception as e:
-            await send_exception_cloudevent(send, 500, f"Error: {e}")
+            # For other unexpected errors, try to send a CloudEvent error response
+            # But check if send is already a CloudEventSender
+            if hasattr(send, 'structured'):
+                await send_exception_cloudevent(send, 500, f"Error: {e}")
+            else:
+                # Fallback to plain HTTP error
+                logging.error(f"Unexpected error: {e}")
+                await send_exception(send, 500, f"Internal Server Error: {e}".encode())
 
     async def handle_liveness(self, scope, receive, send):
         alive = True
@@ -234,7 +260,23 @@ async def send_exception_cloudevent(send, status, message):
     }
     data = {"message": message}
 
-    await send.structured(CloudEvent(attributes, data), status)
+    # Check if send is a CloudEventSender with structured method
+    if hasattr(send, 'structured'):
+        await send.structured(CloudEvent(attributes, data), status)
+    else:
+        # Fallback to plain HTTP error response if send is not a CloudEventSender
+        logging.warning("send_exception_cloudevent called with non-CloudEventSender, falling back to HTTP response")
+        await send({
+            'type': 'http.response.start',
+            'status': status,
+            'headers': [[b'content-type', b'application/json']]
+        })
+        import json
+        error_body = json.dumps({"error": {"message": message, "type": "dev.functions.error"}})
+        await send({
+            'type': 'http.response.body',
+            'body': error_body.encode()
+        })
 
 
 class CloudEventSender:

@@ -209,6 +209,96 @@ def test_signal_handling():
     signal_thread.join(timeout=5)
 
 
+def test_non_cloudevent_get_request():
+    """
+    Tests that non-CloudEvent GET requests return 400 Bad Request.
+    """
+    # Simple CloudEvent handler
+    async def handle(scope, receive, send):
+        # This should not be reached for non-CloudEvent requests
+        await send(CloudEvent({"type": "test", "source": "test"}, {"message": "Should not reach here"}))
+
+    test_complete = threading.Event()
+    test_results = {"success": False, "error": None}
+
+    def test():
+        try:
+            wait_for_function()  # Wait for server to start
+            
+            # Send a regular GET request without CloudEvent headers
+            response = httpx.get(f"http://{LISTEN_ADDRESS}/test")
+            
+            # Should return 400 Bad Request
+            assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+            assert b"CloudEvent" in response.content, "Response should mention CloudEvent"
+            
+            test_results["success"] = True
+        except Exception as e:
+            test_results["error"] = str(e)
+        finally:
+            test_complete.set()
+            os.kill(os.getpid(), signal.SIGINT)
+
+    test_thread = threading.Thread(target=test)
+    test_thread.daemon = True
+    test_thread.start()
+
+    serve(handle)
+
+    if not test_complete.wait(10):
+        pytest.fail("Test timed out")
+
+    if not test_results["success"]:
+        pytest.fail(test_results["error"] or "Test failed")
+
+
+def test_non_cloudevent_post_request():
+    """
+    Tests that non-CloudEvent POST requests with JSON body return 400 Bad Request.
+    """
+    # Simple CloudEvent handler
+    async def handle(scope, receive, send):
+        # This should not be reached for non-CloudEvent requests
+        await send(CloudEvent({"type": "test", "source": "test"}, {"message": "Should not reach here"}))
+
+    test_complete = threading.Event()
+    test_results = {"success": False, "error": None}
+
+    def test():
+        try:
+            wait_for_function()  # Wait for server to start
+            
+            # Send a regular POST request with JSON but without CloudEvent headers
+            response = httpx.post(
+                f"http://{LISTEN_ADDRESS}/test",
+                json={"data": "test"},
+                headers={"content-type": "application/json"}
+            )
+            
+            # Should return 400 Bad Request
+            assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+            assert b"CloudEvent" in response.content, "Response should mention CloudEvent"
+            
+            test_results["success"] = True
+        except Exception as e:
+            test_results["error"] = str(e)
+        finally:
+            test_complete.set()
+            os.kill(os.getpid(), signal.SIGINT)
+
+    test_thread = threading.Thread(target=test)
+    test_thread.daemon = True
+    test_thread.start()
+
+    serve(handle)
+
+    if not test_complete.wait(10):
+        pytest.fail("Test timed out")
+
+    if not test_results["success"]:
+        pytest.fail(test_results["error"] or "Test failed")
+
+
 class FunctionNotAvailableError(Exception):
     """ Raised when a Function is not available """
 
