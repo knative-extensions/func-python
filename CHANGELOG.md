@@ -10,16 +10,20 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 ### Changed
-
-- Improved test function to cover additional CloudEvent cases
-
 ### Deprecated
 ### Removed
 ### Fixed
+### Security
+
+## 0.6.1 - 2025-08-27
+
+### Changed
+
+- Improved test function to cover additional CloudEvent cases
+
+### Fixed
 
 - CloudEvent handler gracefully fails on non-cloudevent requests
-
-### Security
 
 ## [0.5.1] - 2025-03-10
 
