@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import signal
+import socket
 import hypercorn.config
 import hypercorn.asyncio
 
@@ -74,7 +75,13 @@ class ASGIApplication():
         """serve serving this ASGIhandler, delegating implementation of
            methods as necessary to the wrapped Function instance"""
         cfg = hypercorn.config.Config()
-        cfg.bind = [os.getenv('LISTEN_ADDRESS', DEFAULT_LISTEN_ADDRESS)]
+
+        la = os.getenv('LISTEN_ADDRESS', DEFAULT_LISTEN_ADDRESS)
+        [host, port] = la.rsplit(":", 1)
+        # fixup for IPv4-only machines
+        if not socket.has_ipv6 and host == '[::]':
+            la = "0.0.0.0:" + port
+        cfg.bind = [la]
 
         logging.info(f"function starting on {cfg.bind}")
         return asyncio.run(self._serve(cfg))
