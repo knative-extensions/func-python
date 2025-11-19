@@ -15,6 +15,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 ### Security
 
+## 0.7.0 - 2025-11-19
+
+### Added
+
+- Support for IPv4-only environments
+
 ## 0.6.1 - 2025-08-27
 
 ### Changed
