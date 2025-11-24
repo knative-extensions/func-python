@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 import signal
-import socket
+
 import hypercorn.config
 import hypercorn.asyncio
 
@@ -10,8 +10,9 @@ from cloudevents.http import from_http, CloudEvent
 from cloudevents.conversion import to_structured, to_binary
 from cloudevents.exceptions import MissingRequiredFields, InvalidRequiredFields
 
+import func_python.sock
+
 DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LISTEN_ADDRESS = "[::]:8080"
 
 logging.basicConfig(level=DEFAULT_LOG_LEVEL)
 
@@ -75,13 +76,7 @@ class ASGIApplication():
         """serve serving this ASGIhandler, delegating implementation of
            methods as necessary to the wrapped Function instance"""
         cfg = hypercorn.config.Config()
-
-        la = os.getenv('LISTEN_ADDRESS', DEFAULT_LISTEN_ADDRESS)
-        [host, port] = la.rsplit(":", 1)
-        # fixup for IPv4-only machines
-        if not socket.has_ipv6 and host == '[::]':
-            la = "0.0.0.0:" + port
-        cfg.bind = [la]
+        cfg.bind = func_python.sock.bind()
 
         logging.info(f"function starting on {cfg.bind}")
         return asyncio.run(self._serve(cfg))
