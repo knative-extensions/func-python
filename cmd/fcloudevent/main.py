@@ -1,7 +1,7 @@
 import argparse
 import logging
 from func_python.cloudevent import serve
-from cloudevents.http import CloudEvent
+from cloudevents.core.v1.event import CloudEvent
 
 # Set the default logging level to INFO
 logging.basicConfig(level=logging.INFO)
@@ -30,30 +30,30 @@ async def handle(scope, receive, send):
     event = scope["event"]
     if not event:
         error_event = CloudEvent(
-            {"type": "dev.functions.error", "source": "/fcloudevent/error"},
-            {"message": "No CloudEvent found in scope"}
+            attributes={"type": "dev.functions.error", "source": "/fcloudevent/error"},
+            data={"message": "No CloudEvent found in scope"}
         )
         await send(error_event, 500)
         return
-    
-    logging.info(f"Received CloudEvent: type={event['type']}, source={event['source']}")
-    
+
+    logging.info(f"Received CloudEvent: type={event.get_type()}, source={event.get_source()}")
+
     # Handle event data - it might be bytes or dict
-    event_data = event.data
+    event_data = event.get_data()
     if isinstance(event_data, bytes):
         import json
         event_data = json.loads(event_data)
     logging.info(f"CloudEvent data: {event_data}")
-    
+
     response_event = CloudEvent(
-        {
+        attributes={
             "type": "com.example.response.static",
             "source": "/fcloudevent/static",
         },
-        {
+        data={
             "message": "OK: static CloudEvent handler",
-            "received_event_type": event['type'],
-            "received_event_source": event['source'],
+            "received_event_type": event.get_type(),
+            "received_event_source": event.get_source(),
             "received_data": event_data
         }
     )
@@ -79,34 +79,34 @@ class MyCloudEventFunction:
         if not event:
             # This shouldn't happen with our fix, but let's handle it gracefully
             error_event = CloudEvent(
-                {"type": "dev.functions.error", "source": "/fcloudevent/error"},
-                {"message": "No CloudEvent found in scope"}
+                attributes={"type": "dev.functions.error", "source": "/fcloudevent/error"},
+                data={"message": "No CloudEvent found in scope"}
             )
             await send(error_event, 500)
             return
-        
+
         self.event_count += 1
-        
-        logging.info(f"Received CloudEvent #{self.event_count}: type={event['type']}, source={event['source']}")
-        
+
+        logging.info(f"Received CloudEvent #{self.event_count}: type={event.get_type()}, source={event.get_source()}")
+
         # Handle event data - it might be bytes or dict
-        event_data = event.data
+        event_data = event.get_data()
         if isinstance(event_data, bytes):
             import json
             event_data = json.loads(event_data)
         logging.info(f"CloudEvent data: {event_data}")
         logging.info(f"Total events processed: {self.event_count}")
-        
+
         response_event = CloudEvent(
-            {
+            attributes={
                 "type": "com.example.response.instanced",
                 "source": "/fcloudevent/instanced",
             },
-            {
+            data={
                 "message": "OK: instanced CloudEvent handler",
                 "event_count": self.event_count,
-                "received_event_type": event['type'],
-                "received_event_source": event['source'],
+                "received_event_type": event.get_type(),
+                "received_event_source": event.get_source(),
                 "received_data": event_data
             }
         )
