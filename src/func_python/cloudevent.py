@@ -6,9 +6,11 @@ import signal
 import hypercorn.config
 import hypercorn.asyncio
 
-from cloudevents.http import from_http, CloudEvent
-from cloudevents.conversion import to_structured, to_binary
-from cloudevents.exceptions import MissingRequiredFields, InvalidRequiredFields
+from cloudevents.core.v1.event import CloudEvent
+from cloudevents.core.bindings.http import (
+    from_http_event, to_structured_event, to_binary_event, HTTPMessage,
+)
+from cloudevents.core.exceptions import CloudEventValidationError
 
 import func_python.sock
 
@@ -50,8 +52,8 @@ class DefaultFunction:
 
 
 class ASGIApplication():
-    """ ASGIApplication is a wrapper around a Function instance which 
-    exposes it as an ASGI Application. 
+    """ ASGIApplication is a wrapper around a Function instance which
+    exposes it as an ASGI Application.
     """
     def __init__(self, f):
         self.f = f
@@ -153,12 +155,12 @@ class ASGIApplication():
                     send = CloudEventSender(send)
                     # Delegate processing to user's Function
                     await self.f.handle(scope, receive, send)
-                except (MissingRequiredFields, InvalidRequiredFields) as e:
+                except (CloudEventValidationError, ValueError) as e:
                     # Log the non-CloudEvent request for debugging
                     logging.warning(f"Received non-CloudEvent request: {scope['method']} {scope['path']}")
                     headers_dict = {k.decode('utf-8'): v.decode('utf-8') for k, v in scope.get('headers', [])}
                     logging.debug(f"Request headers: {headers_dict}")
-                    
+
                     # Return 400 Bad Request for non-CloudEvent requests
                     await send({
                         'type': 'http.response.start',
@@ -231,7 +233,7 @@ async def decode_event(scope, receive):
         k.decode("utf-8").lower(): v.decode("utf-8")
         for k, v in scope.get("headers", [])
     }
-    return from_http(headers, body)
+    return from_http_event(HTTPMessage(headers=headers, body=body))
 
 
 async def receive_body(receive):
@@ -264,7 +266,7 @@ async def send_exception_cloudevent(send, status, message):
 
     # Check if send is a CloudEventSender with structured method
     if hasattr(send, 'structured'):
-        await send.structured(CloudEvent(attributes, data), status)
+        await send.structured(CloudEvent(attributes=attributes, data=data), status)
     else:
         # Fallback to plain HTTP error response if send is not a CloudEventSender
         logging.warning("send_exception_cloudevent called with non-CloudEventSender, falling back to HTTP response")
@@ -293,13 +295,13 @@ class CloudEventSender:
 
     async def structured(self, event, status=200):
         """send as a structured cloudevent"""
-        headers, body = to_structured(event)
-        await self._send_encoded_cloudevent(headers, body, status)
+        msg = to_structured_event(event)
+        await self._send_encoded_cloudevent(msg.headers, msg.body, status)
 
     async def binary(self, event, status=200):
         """send as a binary cloudevent"""
-        headers, body = to_binary(event)
-        await self._send_encoded_cloudevent(headers, body, status)
+        msg = to_binary_event(event)
+        await self._send_encoded_cloudevent(msg.headers, msg.body, status)
 
     async def http(self, message):
         """Send a raw http response, bypassing the automatic cloudevent

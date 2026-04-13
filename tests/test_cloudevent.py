@@ -8,8 +8,8 @@ import time
 import uuid
 import pytest
 from func_python.cloudevent import serve
-from cloudevents.conversion import to_structured
-from cloudevents.http import CloudEvent
+from cloudevents.core.bindings.http import to_structured_event
+from cloudevents.core.v1.event import CloudEvent
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,7 +32,7 @@ def test_static():
     async def handle(scope, receive, send):
         # Ensure that the scope contains the CloudEvent
         if "event" not in scope:
-            await send(CloudEvent({}, {"message": "no event in scope"}), 500)
+            await send(CloudEvent(attributes={}, data={"message": "no event in scope"}), 500)
 
         attributes = {
             "type": "com.example.teststatic",
@@ -43,7 +43,7 @@ def test_static():
         # The default send encodes the cloudevent using to_structured.
         # use send.binary to send it binary encoded, or send.http to use
         # the raw ASGI response object without CloudEvent middleware.
-        await send(CloudEvent(attributes, content))
+        await send(CloudEvent(attributes=attributes, data=content))
 
     # Test
     # Run async, this attempts to contact the running function and confirm the
@@ -61,11 +61,11 @@ def test_static():
                 "source": "https://example.com/event-producer",
             }
             data = {"message": "test_static"}
-            headers, content = to_structured(CloudEvent(attributes, data))
+            msg = to_structured_event(CloudEvent(attributes=attributes, data=data))
             response = httpx.post(
                 f"http://{LISTEN_ADDRESS}",
-                headers=headers,
-                content=content
+                headers=msg.headers,
+                content=msg.body
             )
 
             # Assertions
@@ -108,7 +108,7 @@ def test_instanced():
         async def handle(self, scope, receive, send):
             # Check if this is a CloudEvent
             if "event" not in scope:
-                await send(CloudEvent({},{"message": "no event in scope"}), 500)
+                await send(CloudEvent(attributes={}, data={"message": "no event in scope"}), 500)
 
             attributes = {
                 "type": "com.example.testinstanced",
@@ -119,7 +119,7 @@ def test_instanced():
             # The default send encodes the cloudevent using to_structured.
             # use send.binary to send it binary encoded, or send.http to use
             # the raw ASGI response object without CloudEvent middleware.
-            await send(CloudEvent(attributes, content))
+            await send(CloudEvent(attributes=attributes, data=content))
 
     def new():
         return MyFunction()
@@ -140,11 +140,11 @@ def test_instanced():
                 "source": "https://example.com/event-producer",
             }
             data = {"message": "test_instanced"}
-            headers, content = to_structured(CloudEvent(attributes, data))
+            msg = to_structured_event(CloudEvent(attributes=attributes, data=data))
             response = httpx.post(
                 f"http://{LISTEN_ADDRESS}",
-                headers=headers,
-                content=content
+                headers=msg.headers,
+                content=msg.body
             )
 
             # Assertions
@@ -216,7 +216,7 @@ def test_non_cloudevent_get_request():
     # Simple CloudEvent handler
     async def handle(scope, receive, send):
         # This should not be reached for non-CloudEvent requests
-        await send(CloudEvent({"type": "test", "source": "test"}, {"message": "Should not reach here"}))
+        await send(CloudEvent(attributes={"type": "test", "source": "test"}, data={"message": "Should not reach here"}))
 
     test_complete = threading.Event()
     test_results = {"success": False, "error": None}
@@ -259,7 +259,7 @@ def test_non_cloudevent_post_request():
     # Simple CloudEvent handler
     async def handle(scope, receive, send):
         # This should not be reached for non-CloudEvent requests
-        await send(CloudEvent({"type": "test", "source": "test"}, {"message": "Should not reach here"}))
+        await send(CloudEvent(attributes={"type": "test", "source": "test"}, data={"message": "Should not reach here"}))
 
     test_complete = threading.Event()
     test_results = {"success": False, "error": None}
