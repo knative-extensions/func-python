@@ -41,6 +41,7 @@ def bind() -> list[str]:
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             sock.bind((host, int(port)))
             result.append(f'fd://{sock.detach()}')

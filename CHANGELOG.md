@@ -13,6 +13,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Deprecated
 ### Removed
 ### Fixed
+
+- Set SO_REUSEADDR on pre-bound sockets to prevent bind failures on restart
+
 ### Security
 
 ## 0.8.0 - 2026-04-13
