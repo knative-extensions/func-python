@@ -17,13 +17,15 @@ def _raise_nofile_limit():
     try:
         soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
         if soft < hard:
-            # RLIM_INFINITY (9223372036854775807 on Linux) cannot be passed
-            # directly to setrlimit — the kernel rejects it with OSError.
-            # Cap the target at a known-safe value instead.
+            # When hard is RLIM_INFINITY the kernel rejects setting the soft
+            # limit to RLIM_INFINITY without CAP_SYS_RESOURCE, so cap the
+            # soft limit at a known-safe value. For finite hard limits, raise
+            # the soft limit all the way to the hard limit as the Go and Java
+            # runtimes do.
             if hard == resource.RLIM_INFINITY:
                 target = _MAX_NOFILE
             else:
-                target = min(hard, _MAX_NOFILE)
+                target = hard
             resource.setrlimit(resource.RLIMIT_NOFILE, (target, hard))
             logging.info("Raised open-file limit from %d to %d", soft, target)
     except (ValueError, OSError) as e:
