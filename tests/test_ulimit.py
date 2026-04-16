@@ -1,23 +1,20 @@
 import logging
-import sys
+import resource
 from unittest.mock import MagicMock, patch
 
 
-_RLIM_INFINITY = 9223372036854775807
-
-
-def _make_resource(soft, hard, rlim_infinity=_RLIM_INFINITY):
+def _make_resource(soft, hard, rlim_infinity=None):
     """Build a minimal mock of the resource module."""
-    mock = MagicMock()
-    mock.RLIMIT_NOFILE = 7
-    mock.RLIM_INFINITY = rlim_infinity
+    mock = MagicMock(spec=resource)
+    mock.RLIMIT_NOFILE = resource.RLIMIT_NOFILE
+    mock.RLIM_INFINITY = rlim_infinity if rlim_infinity is not None else resource.RLIM_INFINITY
     mock.getrlimit.return_value = (soft, hard)
     return mock
 
 
 def _call_with_resource(mock_resource):
-    """Call _raise_nofile_limit() with the given resource mock in place."""
-    with patch.dict(sys.modules, {"resource": mock_resource}):
+    """Call _raise_nofile_limit() with the given resource mock patched in place."""
+    with patch("func_python._ulimit._resource", mock_resource):
         from func_python._ulimit import _raise_nofile_limit
         _raise_nofile_limit()
     return mock_resource
@@ -32,7 +29,7 @@ def test_raises_soft_limit_to_hard():
     mock_resource = _make_resource(soft=1024, hard=4096)
     _call_with_resource(mock_resource)
     mock_resource.setrlimit.assert_called_once_with(
-        mock_resource.RLIMIT_NOFILE, (4096, 4096)
+        resource.RLIMIT_NOFILE, (4096, 4096)
     )
 
 
@@ -41,7 +38,7 @@ def test_raises_soft_limit_to_hard_above_65536():
     mock_resource = _make_resource(soft=1024, hard=131072)
     _call_with_resource(mock_resource)
     mock_resource.setrlimit.assert_called_once_with(
-        mock_resource.RLIMIT_NOFILE, (131072, 131072)
+        resource.RLIMIT_NOFILE, (131072, 131072)
     )
 
 
@@ -55,17 +52,18 @@ def test_no_change_when_soft_equals_hard():
 def test_rlim_infinity_capped_at_max():
     """When hard == RLIM_INFINITY the soft limit must be capped at _MAX_NOFILE."""
     from func_python._ulimit import _MAX_NOFILE
-    mock_resource = _make_resource(soft=1024, hard=_RLIM_INFINITY,
-                                   rlim_infinity=_RLIM_INFINITY)
+    rlim_infinity = resource.RLIM_INFINITY
+    mock_resource = _make_resource(soft=1024, hard=rlim_infinity,
+                                   rlim_infinity=rlim_infinity)
     _call_with_resource(mock_resource)
     mock_resource.setrlimit.assert_called_once_with(
-        mock_resource.RLIMIT_NOFILE, (_MAX_NOFILE, _RLIM_INFINITY)
+        resource.RLIMIT_NOFILE, (_MAX_NOFILE, rlim_infinity)
     )
 
 
 def test_import_error_is_silently_skipped():
     """When resource is unavailable (non-Unix), no exception is raised."""
-    with patch.dict(sys.modules, {"resource": None}):
+    with patch("func_python._ulimit._resource", None):
         from func_python._ulimit import _raise_nofile_limit
         _raise_nofile_limit()  # must not raise
 
@@ -74,7 +72,7 @@ def test_os_error_logs_warning(caplog):
     """When setrlimit raises OSError, a warning is logged and no exception propagates."""
     mock_resource = _make_resource(soft=1024, hard=4096)
     mock_resource.setrlimit.side_effect = OSError("operation not permitted")
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(logging.WARNING, logger="func_python._ulimit"):
         _call_with_resource(mock_resource)
     assert any("Could not raise open-file limit" in r.message for r in caplog.records)
 
@@ -83,7 +81,7 @@ def test_value_error_logs_warning(caplog):
     """When setrlimit raises ValueError, a warning is logged and no exception propagates."""
     mock_resource = _make_resource(soft=1024, hard=4096)
     mock_resource.setrlimit.side_effect = ValueError("invalid argument")
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(logging.WARNING, logger="func_python._ulimit"):
         _call_with_resource(mock_resource)
     assert any("Could not raise open-file limit" in r.message for r in caplog.records)
 
