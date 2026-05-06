@@ -114,7 +114,13 @@ class ASGIApplication():
             while True:
                 message = await receive()
                 if message['type'] == 'lifespan.startup':
-                    await self.on_start()
+                    try:
+                        await self.on_start()
+                    except Exception as e:
+                        logging.error("function startup failed: %s", e)
+                        await send({'type': 'lifespan.startup.failed',
+                                    'message': str(e)})
+                        return
                     await send({'type': 'lifespan.startup.complete'})
                 elif message['type'] == 'lifespan.shutdown':
                     await self.on_stop()
@@ -253,7 +259,7 @@ async def send_exception(send, code, message):
         'headers': [[b'content-type', b'text/plain']],
     })
     await send({
-        'type': 'http.response.body', 'body': message,
+        'type': 'http.response.body', 'body': message.encode('utf-8') if isinstance(message, str) else message,
     })
 
 
