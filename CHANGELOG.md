@@ -9,6 +9,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+
+- Automatically raise the soft `RLIMIT_NOFILE` to the hard limit at
+  `serve()` startup, matching Go and Java runtime behaviour. Finite hard
+  limits are honoured in full; when the hard limit is `RLIM_INFINITY` the
+  soft limit is capped at 65536 to stay within kernel constraints.
+  Failures are logged as warnings and never fatal (knative/func#3513).
+
 ### Changed
 ### Deprecated
 ### Removed

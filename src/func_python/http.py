@@ -8,6 +8,7 @@ import hypercorn.config
 import hypercorn.asyncio
 
 import func_python.sock
+from func_python._ulimit import _raise_nofile_limit
 
 DEFAULT_LOG_LEVEL = logging.INFO
 
@@ -19,6 +20,7 @@ def serve(f):
     and starting.  The function can be either a constructor for a functon
     instance (named "new") or a simple ASGI handler function (named "handle").
     """
+    _raise_nofile_limit()
     logging.debug("func runtime creating function instance")
 
     if f.__name__ == 'new':
