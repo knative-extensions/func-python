@@ -4,7 +4,9 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/"
+    directories:
+      - "/"         # pyproject.toml and poetry.lock
+      - "/.github"  # tools the workflows install
     schedule:
       interval: "daily"
     assignees:
