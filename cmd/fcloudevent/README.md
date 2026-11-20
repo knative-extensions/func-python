@@ -5,21 +5,24 @@ This directory contains an example CloudEvent function that demonstrates how to 
 This is an example usage of the Functions CloudEvents middleware.
 
 Run the function
-```
+
+````
 
 ## Start the Function
 
 Run the instanced handler (default):
 ```bash
 poetry run python cmd/fcloudevent/main.py
-```
+````
 
 Run the static handler:
+
 ```bash
 poetry run python cmd/fcloudevent/main.py --static
 ```
 
 Change the listen address (default is [::]:8080):
+
 ```bash
 LISTEN_ADDRESS=127.0.0.1:8081 poetry run python cmd/fcloudevent/main.py
 ```
@@ -55,7 +58,6 @@ curl -X POST http://127.0.0.1:8080 \
     }
   }'
 ```
-
 
 To see the actual middleware which is used when building a Python Function,
 see the [Functions Python Scaffolding](https://github.com/knative/func/tree/main/templates/python/cloudevents)
