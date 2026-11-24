@@ -4,6 +4,7 @@ This middleware is used by Knative Functions to expose a Function written in
 Python as a network service.
 
 ## Contents
+
 ```
 .
 ├── cmd
@@ -43,7 +44,7 @@ library is used when integrate with Functions, and can be useful during dev.
 - install dependencies with `poetry install`
 - activate the virtual environment managed by poetry via `poetry shell`
   Note that in some environments this command may cause collissions with
-  configured keyboard shortcuts.  If there are problems, you can instead
+  configured keyboard shortcuts. If there are problems, you can instead
   source the environment variables directly with:
   `source $(poetry env info --path)/bin/activate`
 - run the example via `poetry run python cmd/fhttp/main.py`
@@ -54,8 +55,8 @@ library is used when integrate with Functions, and can be useful during dev.
 A nice method of development using git worktrees:
 
 p. From a personal fork, create a new worktree for the bug, feature or chore
-   named appropriately (eg. "feature-a")
-   `git worktree add feature-a`
+named appropriately (eg. "feature-a")
+`git worktree add feature-a`
 
 2. Implement the code changes and commit.
 
@@ -80,35 +81,38 @@ is pushed (which triggers production release).
 
 To test, in a test project ensure the it adds the test package as an
 explicit source in pyproject.toml:
+
 ```
 [[tool.poetry.source]]
 name = "test-pypi"
 url = "https://test.pypi.org/simple/"
 priority = "explicit"
 ```
+
 Then update the dependency to explicitly pull the new version which is only
-available on TestPyPI.  For example to test a hypothetical unreleased version
+available on TestPyPI. For example to test a hypothetical unreleased version
 0.1.2:
+
 ```
 [tool.poetry.dependencies]
 func_python = {version = "0.1.2", source = "test-pypi"}
 ```
+
 Run `poetry install` to install the unreleased version from Test PyPI
 
 Note: do not check in this change.
 
-
 ## Releasing
 
 NOTE: This process is currently undergoing minor tweaks, and thus contains
-several manual steps.  Once the process is codified, it can be more highly 
+several manual steps. Once the process is codified, it can be more highly
 automated.
 
 1. Create a new branch "release-x.y" from an up-to-date main
    When incrementing, follow Semantic Versioning standard. eg:
-   - Bug fixes:  ++ patch version
-   - Features:   ++ minor version
-   - Breaking Changes:  ++ major version
+   - Bug fixes: ++ patch version
+   - Features: ++ minor version
+   - Breaking Changes: ++ major version
 
 2. Update pyproject.toml with the new version.
 
@@ -134,11 +138,10 @@ automated.
 
 10. Update the GitHub release's notes to be the changelog section's contents .
 
-
 ### Potential improvements
 
 Update to using the suffix "rcX" so as not to confuse folks pulling tags list
-from the git repo.  Without this suffix, a simple listing of the latest
+from the git repo. Without this suffix, a simple listing of the latest
 tags from the repo would show a potentially unreleased version as the latest.
 
 With the use of these release-candidate tags, the use of TestPyPI may be
@@ -146,5 +149,5 @@ unnecessary.
 
 Perhaps push the RC tag to the PR's commit and test prior to merging the
 PR to main, such that a potentially broken version is not kept in the main
-branch's history.  For example, if v0.1.2rc1 failed, its commit will not be
+branch's history. For example, if v0.1.2rc1 failed, its commit will not be
 part of the main branch.
