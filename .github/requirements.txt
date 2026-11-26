@@ -1,0 +1,2 @@
+# Tools that the workflows install. Dependabot keeps the versions current.
+poetry==2.5.1
